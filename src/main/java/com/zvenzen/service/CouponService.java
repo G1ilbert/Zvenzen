@@ -28,7 +28,7 @@ public class CouponService {
 
     @Transactional
     public CouponDto issueCoupon(Long promotionId, Partner partner) {
-        Promotion promotion = promotionRepository.findById(promotionId)
+        Promotion promotion = promotionRepository.findByIdWithLock(promotionId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Promotion not found with id: " + promotionId));
 

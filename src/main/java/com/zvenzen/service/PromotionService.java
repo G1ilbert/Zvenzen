@@ -3,6 +3,7 @@ package com.zvenzen.service;
 import com.zvenzen.dto.FreeItemDto;
 import com.zvenzen.dto.PromotionDto;
 import com.zvenzen.entity.Promotion;
+import com.zvenzen.exception.ResourceNotFoundException;
 import com.zvenzen.repository.PromotionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,13 @@ public class PromotionService {
         return promotionRepository.findAllActiveAndValid(now).stream()
                 .map(this::toDto)
                 .toList();
+    }
+
+    public PromotionDto getPromotionById(Long id) {
+        Promotion promotion = promotionRepository.findByIdWithFreeItems(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Promotion not found with id: " + id));
+        return toDto(promotion);
     }
 
     private PromotionDto toDto(Promotion promo) {

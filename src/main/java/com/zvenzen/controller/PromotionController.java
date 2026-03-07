@@ -21,4 +21,10 @@ public class PromotionController {
         List<PromotionDto> promotions = promotionService.getActivePromotions();
         return ResponseEntity.ok(ApiResponse.ok(promotions));
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<PromotionDto>> getPromotion(@PathVariable Long id) {
+        PromotionDto promotion = promotionService.getPromotionById(id);
+        return ResponseEntity.ok(ApiResponse.ok(promotion));
+    }
 }
