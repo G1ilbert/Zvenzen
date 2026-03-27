@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/partner/coupons")
 @RequiredArgsConstructor
 @io.swagger.v3.oas.annotations.tags.Tag(name = "Partner - Coupons", description = "Coupon issuance for partners (requires X-API-KEY)")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "api-key")
 public class PartnerCouponController {
 
     private final CouponService couponService;

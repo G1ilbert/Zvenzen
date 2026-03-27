@@ -13,6 +13,7 @@ import java.util.List;
 @RequestMapping("/api/v1/partner/promotions")
 @RequiredArgsConstructor
 @io.swagger.v3.oas.annotations.tags.Tag(name = "Partner - Promotions", description = "Promotions for partners (requires X-API-KEY)")
+@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "api-key")
 public class PartnerPromotionController {
 
     private final PromotionService promotionService;
