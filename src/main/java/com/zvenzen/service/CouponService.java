@@ -2,7 +2,6 @@ package com.zvenzen.service;
 
 import com.zvenzen.dto.CouponDto;
 import com.zvenzen.entity.Coupon;
-import com.zvenzen.entity.Partner;
 import com.zvenzen.entity.Promotion;
 import com.zvenzen.exception.BusinessException;
 import com.zvenzen.exception.ResourceNotFoundException;
@@ -27,34 +26,29 @@ public class CouponService {
     private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     @Transactional
-    public CouponDto issueCoupon(Long promotionId, Partner partner) {
+    public CouponDto issueCoupon(Long promotionId) {
         Promotion promotion = promotionRepository.findByIdWithLock(promotionId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Promotion not found with id: " + promotionId));
 
-        // Validate promotion is active
         if (!promotion.getIsActive()) {
             throw new BusinessException("Promotion is not active");
         }
 
-        // Validate promotion is within valid date range
         LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(promotion.getValidFrom()) || now.isAfter(promotion.getValidUntil())) {
             throw new BusinessException("Promotion is not within valid date range");
         }
 
-        // Validate max coupons not exceeded
         if (promotion.getCouponsUsed() >= promotion.getMaxCoupons()) {
             throw new BusinessException("Maximum number of coupons has been reached for this promotion");
         }
 
-        // Generate coupon
         String code = generateCouponCode();
         String qrToken = UUID.randomUUID().toString();
 
         Coupon coupon = Coupon.builder()
                 .promotion(promotion)
-                .partner(partner)
                 .code(code)
                 .qrToken(qrToken)
                 .status("active")
@@ -63,7 +57,6 @@ public class CouponService {
 
         coupon = couponRepository.save(coupon);
 
-        // Increment coupons_used
         promotion.setCouponsUsed(promotion.getCouponsUsed() + 1);
         promotionRepository.save(promotion);
 
@@ -71,15 +64,15 @@ public class CouponService {
     }
 
     @Transactional(readOnly = true)
-    public CouponDto getCouponByCode(String code, Partner partner) {
-        Coupon coupon = couponRepository.findByCodeAndPartnerId(code, partner.getId())
+    public CouponDto getCouponByCode(String code) {
+        Coupon coupon = couponRepository.findByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Coupon not found with code: " + code));
         return toDto(coupon);
     }
 
     private String generateCouponCode() {
-        StringBuilder sb = new StringBuilder("ICE-");
+        StringBuilder sb = new StringBuilder("ZVN-");
         for (int i = 0; i < 6; i++) {
             sb.append(CHARS.charAt(RANDOM.nextInt(CHARS.length())));
         }

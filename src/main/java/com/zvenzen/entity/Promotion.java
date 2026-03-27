@@ -48,7 +48,7 @@ public class Promotion {
     @Builder.Default
     private Boolean isActive = true;
 
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<PromotionFreeItem> freeItems = new ArrayList<>();
 }

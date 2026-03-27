@@ -22,6 +22,13 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
            "AND p.validUntil >= :now")
     List<Promotion> findAllActiveAndValid(LocalDateTime now);
 
+    @Query("SELECT DISTINCT p FROM Promotion p " +
+           "LEFT JOIN FETCH p.freeItems fi " +
+           "LEFT JOIN FETCH fi.product " +
+           "LEFT JOIN FETCH fi.option " +
+           "ORDER BY p.id")
+    List<Promotion> findAllWithFreeItems();
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Promotion p WHERE p.id = :id")
     Optional<Promotion> findByIdWithLock(@Param("id") Long id);

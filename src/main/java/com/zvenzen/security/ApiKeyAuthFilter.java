@@ -2,29 +2,29 @@ package com.zvenzen.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zvenzen.dto.ApiResponse;
-import com.zvenzen.entity.Partner;
-import com.zvenzen.repository.PartnerRepository;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Component
 @Order(1)
-@RequiredArgsConstructor
 public class ApiKeyAuthFilter implements Filter {
 
     private static final String API_KEY_HEADER = "X-API-KEY";
-    private static final String PARTNER_ATTR = "authenticatedPartner";
 
-    private final PartnerRepository partnerRepository;
+    private final String apiKey;
     private final ObjectMapper objectMapper;
+
+    public ApiKeyAuthFilter(@Value("${app.api-key}") String apiKey, ObjectMapper objectMapper) {
+        this.apiKey = apiKey;
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -32,29 +32,34 @@ public class ApiKeyAuthFilter implements Filter {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        String path = httpRequest.getRequestURI();
 
-        // Only filter /api/ endpoints
-        if (!path.startsWith("/api/")) {
+        // Let CORS preflight through without auth
+        if ("OPTIONS".equalsIgnoreCase(httpRequest.getMethod())) {
             chain.doFilter(request, response);
             return;
         }
 
-        String apiKey = httpRequest.getHeader(API_KEY_HEADER);
-        if (apiKey == null || apiKey.isBlank()) {
+        String path = httpRequest.getRequestURI();
+
+        // Only /api/v1/partner/** requires API key
+        if (!path.startsWith("/api/v1/partner/")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        String headerKey = httpRequest.getHeader(API_KEY_HEADER);
+        if (headerKey == null || headerKey.isBlank()) {
             writeError(httpResponse, HttpServletResponse.SC_UNAUTHORIZED,
                     "Missing X-API-KEY header");
             return;
         }
 
-        Optional<Partner> partner = partnerRepository.findByApiKeyAndStatus(apiKey, "active");
-        if (partner.isEmpty()) {
+        if (!apiKey.equals(headerKey)) {
             writeError(httpResponse, HttpServletResponse.SC_UNAUTHORIZED,
-                    "Invalid or inactive API key");
+                    "Invalid API key");
             return;
         }
 
-        httpRequest.setAttribute(PARTNER_ATTR, partner.get());
         chain.doFilter(request, response);
     }
 

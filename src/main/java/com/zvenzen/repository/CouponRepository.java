@@ -10,7 +10,6 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
 
     @Query("SELECT c FROM Coupon c " +
            "JOIN FETCH c.promotion " +
-           "JOIN FETCH c.partner " +
-           "WHERE c.code = :code AND c.partner.id = :partnerId")
-    Optional<Coupon> findByCodeAndPartnerId(String code, Long partnerId);
+           "WHERE c.code = :code")
+    Optional<Coupon> findByCode(String code);
 }

@@ -16,6 +16,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
            "ORDER BY p.category.sortOrder, p.name")
     List<Product> findAllActiveWithCategoryAndOptions();
 
+    @Query("SELECT DISTINCT p FROM Product p " +
+           "LEFT JOIN FETCH p.category " +
+           "LEFT JOIN FETCH p.options " +
+           "ORDER BY p.category.sortOrder, p.name")
+    List<Product> findAllWithCategoryAndOptions();
+
     @Query("SELECT p FROM Product p " +
            "LEFT JOIN FETCH p.category " +
            "LEFT JOIN FETCH p.options " +

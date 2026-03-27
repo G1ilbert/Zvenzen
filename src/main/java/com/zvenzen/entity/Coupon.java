@@ -20,10 +20,6 @@ public class Coupon {
     @JoinColumn(name = "promotion_id", nullable = false)
     private Promotion promotion;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "partner_id", nullable = false)
-    private Partner partner;
-
     @Column(nullable = false, unique = true, length = 20)
     private String code;
 
