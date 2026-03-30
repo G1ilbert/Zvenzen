@@ -179,38 +179,35 @@ export default function PosPage() {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto flex-1 pr-2 custom-scrollbar">
           {filteredProducts.map((product) => (
-            <Card
+            <div
               key={product.id}
-              className="group cursor-pointer border-none shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden bg-white/50 backdrop-blur-sm hover:-translate-y-1 ring-1 ring-black/[0.05]"
+              className="group cursor-pointer rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
               onClick={() => handleProductClick(product)}
             >
-              <CardContent className="p-0 flex flex-col h-full">
-                <div className="aspect-square w-full relative overflow-hidden bg-muted/30">
-                  {product.imageUrl ? (
-                    <img 
-                      src={product.imageUrl} 
-                      alt={product.name} 
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/20">
-                      <span className="text-4xl filter drop-shadow-sm group-hover:scale-110 transition-transform">🍦</span>
-                    </div>
-                  )}
-                  {product.options?.length > 0 && (
-                    <div className="absolute bottom-2 right-2">
-                      <Badge variant="secondary" className="bg-white/90 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md">
-                        {product.options.length} Options
-                      </Badge>
-                    </div>
-                  )}
+              <div className="relative aspect-square">
+                {product.imageUrl ? (
+                  <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/20">
+                    <span className="text-4xl filter drop-shadow-sm group-hover:scale-110 transition-transform">🍦</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-white via-white/60 to-transparent" style={{top: '50%'}} />
+                <div className="absolute bottom-0 left-0 right-0 p-3">
+                  <p className="font-semibold text-gray-900 text-sm line-clamp-1">{product.name}</p>
+                  <p className="text-rose-500 font-bold text-sm">{money(product.basePrice)}</p>
                 </div>
-                <div className="p-4 flex flex-col items-center text-center space-y-1">
-                  <h3 className="font-semibold text-sm line-clamp-1 group-hover:text-primary transition-colors">{product.name}</h3>
-                  <p className="text-primary font-bold text-lg">{money(product.basePrice)}</p>
-                </div>
-              </CardContent>
-            </Card>
+                {product.options && product.options.length > 0 && (
+                  <span className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full font-medium">
+                    {product.options.length} options
+                  </span>
+                )}
+              </div>
+            </div>
           ))}
           {filteredProducts.length === 0 && (
             <div className="col-span-full flex flex-col items-center justify-center py-20 text-muted-foreground bg-muted/20 rounded-2xl border-2 border-dashed">
