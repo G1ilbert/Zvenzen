@@ -13,13 +13,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
            "LEFT JOIN FETCH p.category " +
            "LEFT JOIN FETCH p.options " +
            "WHERE p.isActive = true " +
-           "ORDER BY p.category.sortOrder, p.name")
+           "ORDER BY p.category.id, p.name")
     List<Product> findAllActiveWithCategoryAndOptions();
 
     @Query("SELECT DISTINCT p FROM Product p " +
            "LEFT JOIN FETCH p.category " +
            "LEFT JOIN FETCH p.options " +
-           "ORDER BY p.category.sortOrder, p.name")
+           "ORDER BY p.category.id, p.name")
     List<Product> findAllWithCategoryAndOptions();
 
     @Query("SELECT p FROM Product p " +

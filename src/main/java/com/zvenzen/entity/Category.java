@@ -17,9 +17,6 @@ public class Category {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(name = "sort_order")
-    private Integer sortOrder;
-
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;

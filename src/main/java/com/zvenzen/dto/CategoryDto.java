@@ -8,6 +8,5 @@ import lombok.*;
 public class CategoryDto {
     private Long id;
     private String name;
-    private Integer sortOrder;
     private Boolean isActive;
 }

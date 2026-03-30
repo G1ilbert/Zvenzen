@@ -20,12 +20,15 @@ ALTER SEQUENCE order_items_id_seq RESTART WITH 1;
 ALTER SEQUENCE coupons_id_seq RESTART WITH 1;
 ALTER SEQUENCE coupon_usages_id_seq RESTART WITH 1;
 
+-- Drop sort_order column if exists
+ALTER TABLE categories DROP COLUMN IF EXISTS sort_order;
+
 -- 3 Categories only
-INSERT INTO categories (id, name, sort_order, is_active) VALUES
-  (1, 'ไอติมสกู๊ป', 1, true),
-  (2, 'เครื่องดื่ม', 2, true),
-  (3, 'เค้ก', 3, true)
-ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, sort_order = EXCLUDED.sort_order;
+INSERT INTO categories (id, name, is_active) VALUES
+  (1, 'ไอติมสกู๊ป', true),
+  (2, 'เครื่องดื่ม', true),
+  (3, 'เค้ก', true)
+ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
 
 -- 8 Ice cream
 INSERT INTO products (id, category_id, name, base_price, image_url, is_active) VALUES

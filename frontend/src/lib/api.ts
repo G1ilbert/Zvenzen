@@ -42,9 +42,9 @@ async function patch<T>(url: string, body?: unknown): Promise<T> {
 
 // Categories
 export const getCategories = () => get<Category[]>("/categories");
-export const createCategory = (data: { name: string; sortOrder?: number }) =>
+export const createCategory = (data: { name: string }) =>
   post<Category>("/categories", data);
-export const updateCategory = (id: number, data: { name: string; sortOrder?: number }) =>
+export const updateCategory = (id: number, data: { name: string }) =>
   put<Category>(`/categories/${id}`, data);
 
 // Menu

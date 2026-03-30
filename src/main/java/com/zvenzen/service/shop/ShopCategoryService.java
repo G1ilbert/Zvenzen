@@ -28,7 +28,6 @@ public class ShopCategoryService {
     public CategoryDto createCategory(CreateCategoryRequest request) {
         Category category = Category.builder()
                 .name(request.getName())
-                .sortOrder(request.getSortOrder())
                 .build();
         return toDto(categoryRepository.save(category));
     }
@@ -38,7 +37,6 @@ public class ShopCategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
         category.setName(request.getName());
-        category.setSortOrder(request.getSortOrder());
         return toDto(categoryRepository.save(category));
     }
 
@@ -46,7 +44,6 @@ public class ShopCategoryService {
         return CategoryDto.builder()
                 .id(c.getId())
                 .name(c.getName())
-                .sortOrder(c.getSortOrder())
                 .isActive(c.getIsActive())
                 .build();
     }
