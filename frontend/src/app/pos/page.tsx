@@ -177,36 +177,28 @@ export default function PosPage() {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto flex-1 pr-2 custom-scrollbar">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto flex-1 pr-2 custom-scrollbar">
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="group cursor-pointer rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+              className="cursor-pointer rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all h-[220px] relative"
               onClick={() => handleProductClick(product)}
             >
-              <div className="relative aspect-square">
-                {product.imageUrl ? (
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/20">
-                    <span className="text-4xl filter drop-shadow-sm group-hover:scale-110 transition-transform">🍦</span>
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-white via-white/60 to-transparent" style={{top: '50%'}} />
-                <div className="absolute bottom-0 left-0 right-0 p-3">
-                  <p className="font-semibold text-gray-900 text-sm line-clamp-1">{product.name}</p>
-                  <p className="text-rose-500 font-bold text-sm">{money(product.basePrice)}</p>
-                </div>
-                {product.options && product.options.length > 0 && (
-                  <span className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full font-medium">
-                    {product.options.length} options
-                  </span>
-                )}
+              <img
+                src={product.imageUrl || ""}
+                alt={product.name}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-3">
+                <p className="font-medium text-white text-sm drop-shadow">{product.name}</p>
+                <p className="text-rose-300 font-semibold text-sm drop-shadow">{money(product.basePrice)}</p>
               </div>
+              {product.options && product.options.length > 0 && (
+                <span className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
+                  {product.options.length} options
+                </span>
+              )}
             </div>
           ))}
           {filteredProducts.length === 0 && (
