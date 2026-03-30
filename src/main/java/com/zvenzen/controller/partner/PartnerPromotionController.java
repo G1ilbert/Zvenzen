@@ -5,7 +5,6 @@ import com.zvenzen.dto.partner.PartnerCouponResponseDto;
 import com.zvenzen.dto.partner.PartnerFixedPromotionDto;
 import com.zvenzen.dto.partner.PartnerFreeItemPromotionDto;
 import com.zvenzen.service.CouponService;
-import com.zvenzen.service.MenuService;
 import com.zvenzen.service.PromotionService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -15,22 +14,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/partner")
 @RequiredArgsConstructor
-@Tag(name = "1. Partner API", description = "ดูโปรโมชั่นพร้อมเมนู และออกคูปอง")
+@Tag(name = "1. Partner API", description = "ดูโปรโมชั่นและออกคูปอง")
 public class PartnerPromotionController {
 
     private final PromotionService promotionService;
-    private final MenuService menuService;
     private final CouponService couponService;
 
     @GetMapping("/promotions")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getPromotions() {
+    public ResponseEntity<ApiResponse<List<Object>>> getPromotions() {
         List<PromotionDto> allPromos = promotionService.getActivePromotions();
         List<Object> promotions = new ArrayList<>();
 
@@ -61,10 +57,7 @@ public class PartnerPromotionController {
             }
         }
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("promotions", promotions);
-        result.put("menu", menuService.getAllActiveMenuItems());
-        return ResponseEntity.ok(ApiResponse.ok(result));
+        return ResponseEntity.ok(ApiResponse.ok(promotions));
     }
 
     @PostMapping("/coupons/issue")
