@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/partner")
 @RequiredArgsConstructor
-@Tag(name = "1. Partner API", description = "ดูโปรโมชั่นและออกคูปอง")
+@Tag(name = "Partner API", description = "ดูโปรโมชั่นและออกคูปอง")
 public class PartnerPromotionController {
 
     private final PromotionService promotionService;

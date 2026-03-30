@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/shop/orders")
 @RequiredArgsConstructor
-@io.swagger.v3.oas.annotations.tags.Tag(name = "6. Shop - Orders", description = "สร้างและจัดการออเดอร์")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Shop - Orders", description = "สร้างและจัดการออเดอร์")
 public class ShopOrderController {
 
     private final ShopOrderService shopOrderService;

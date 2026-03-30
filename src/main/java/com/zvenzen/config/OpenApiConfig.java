@@ -1,11 +1,22 @@
 package com.zvenzen.config;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@OpenAPIDefinition(
+        tags = {
+                @Tag(name = "Partner API"),
+                @Tag(name = "Shop - Categories"),
+                @Tag(name = "Shop - Menu"),
+                @Tag(name = "Shop - Orders"),
+                @Tag(name = "Shop - Promotions")
+        }
+)
 public class OpenApiConfig {
 
     @Bean
