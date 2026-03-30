@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getPromotions, createPromotion, updatePromotion, togglePromotion, getMenu } from "@/lib/api";
+import { getPromotions, createPromotion, updatePromotion, getMenu } from "@/lib/api";
 import { money, formatDate } from "@/lib/format";
 import type { Promotion, Product } from "@/lib/types";
 
@@ -143,8 +143,24 @@ export default function PromotionsPage() {
   };
 
   const handleToggle = async (id: number) => {
+    const promo = promotions.find((p) => p.id === id);
+    if (!promo) return;
     try {
-      await togglePromotion(id);
+      await updatePromotion(id, {
+        name: promo.name,
+        discountType: promo.discountType,
+        discountValue: promo.discountValue,
+        minOrderAmount: promo.minOrderAmount,
+        maxCoupons: promo.maxCoupons,
+        validFrom: promo.validFrom,
+        validUntil: promo.validUntil,
+        isActive: !(promo.isActive !== false),
+        freeItems: promo.freeItems?.map((fi) => ({
+          productId: fi.productId,
+          optionId: fi.optionId,
+          quantity: fi.quantity,
+        })) || [],
+      });
       load();
     } catch {
       toast.error("Toggle failed");

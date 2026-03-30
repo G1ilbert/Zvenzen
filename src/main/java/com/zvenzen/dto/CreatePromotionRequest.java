@@ -35,6 +35,8 @@ public class CreatePromotionRequest {
     @NotNull(message = "validUntil is required")
     private LocalDateTime validUntil;
 
+    private Boolean isActive;
+
     @Valid
     private List<FreeItemRequest> freeItems;
 }

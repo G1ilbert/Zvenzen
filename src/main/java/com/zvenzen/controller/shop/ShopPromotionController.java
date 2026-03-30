@@ -37,8 +37,4 @@ public class ShopPromotionController {
         return ResponseEntity.ok(ApiResponse.ok(shopPromotionService.updatePromotion(id, request)));
     }
 
-    @PatchMapping("/{id}/toggle")
-    public ResponseEntity<ApiResponse<PromotionDto>> toggle(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.ok(shopPromotionService.toggleActive(id)));
-    }
 }

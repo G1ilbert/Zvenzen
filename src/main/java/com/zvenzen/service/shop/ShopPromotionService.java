@@ -79,6 +79,9 @@ public class ShopPromotionService {
         promotion.setMaxCoupons(request.getMaxCoupons());
         promotion.setValidFrom(request.getValidFrom());
         promotion.setValidUntil(request.getValidUntil());
+        if (request.getIsActive() != null) {
+            promotion.setIsActive(request.getIsActive());
+        }
 
         // Replace free items
         promotion.getFreeItems().clear();

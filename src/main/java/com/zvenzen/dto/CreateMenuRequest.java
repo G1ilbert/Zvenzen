@@ -27,6 +27,8 @@ public class CreateMenuRequest {
 
     private String imageUrl;
 
+    private Boolean isActive;
+
     @Valid
     private List<ProductOptionRequest> options;
 }

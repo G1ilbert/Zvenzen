@@ -52,15 +52,6 @@ export const getMenu = () => get<Product[]>("/menu");
 export const getMenuItem = (id: number) => get<Product>(`/menu/${id}`);
 export const createMenuItem = (data: unknown) => post<Product>("/menu", data);
 export const updateMenuItem = (id: number, data: unknown) => put<Product>(`/menu/${id}`, data);
-export const toggleMenuItem = (id: number) => patch<Product>(`/menu/${id}/toggle`);
-export const uploadProductImage = async (file: File): Promise<string> => {
-  const formData = new FormData();
-  formData.append("file", file);
-  const res = await api.post<ApiResponse<{ imageUrl: string }>>("/menu/upload-image", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-  return res.data.data.imageUrl;
-};
 
 // Orders
 export const getOrders = (params?: Record<string, string>) => get<Order[]>("/orders", params);
@@ -77,8 +68,6 @@ export const getPromotions = () => get<Promotion[]>("/promotions");
 export const createPromotion = (data: unknown) => post<Promotion>("/promotions", data);
 export const updatePromotion = (id: number, data: unknown) =>
   put<Promotion>(`/promotions/${id}`, data);
-export const togglePromotion = (id: number) => patch<Promotion>(`/promotions/${id}/toggle`);
-
 // Collaboration Coupon (soasoymilk x zvenzen)
 const COLLAB_API = "https://soasoymilkapi-production.up.railway.app/colab/ice-cream";
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, Upload, ImageIcon } from "lucide-react";
+import { Plus, Trash2, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getMenu, getCategories, createMenuItem, updateMenuItem, toggleMenuItem, uploadProductImage } from "@/lib/api";
+import { getMenu, getCategories, createMenuItem, updateMenuItem } from "@/lib/api";
 import { money } from "@/lib/format";
 import type { Product, Category } from "@/lib/types";
 
@@ -63,7 +63,6 @@ export default function MenuPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState<MenuForm>(emptyForm);
-  const [uploading, setUploading] = useState(false);
 
   const load = () => {
     getMenu().then(setProducts).catch(() => {});
@@ -123,28 +122,27 @@ export default function MenuPage() {
   };
 
   const handleToggle = async (id: number) => {
+    const product = products.find((p) => p.id === id);
+    if (!product) return;
     try {
-      await toggleMenuItem(id);
+      await updateMenuItem(id, {
+        categoryId: product.categoryId,
+        name: product.name,
+        basePrice: product.basePrice,
+        imageUrl: product.imageUrl,
+        isActive: !(product.isActive !== false),
+        options: product.options?.map((o) => ({
+          optionName: o.optionName,
+          extraPrice: o.extraPrice,
+          isDefault: o.isDefault,
+        })) || [],
+      });
       load();
     } catch {
       toast.error("Toggle failed");
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const imageUrl = await uploadProductImage(file);
-      setForm((f) => ({ ...f, imageUrl }));
-      toast.success("Image uploaded successfully");
-    } catch {
-      toast.error("Image upload failed");
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const addOption = () => {
     setForm((f) => ({
@@ -304,46 +302,21 @@ export default function MenuPage() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Visual Branding</Label>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="col-span-1 h-32 rounded-2xl bg-muted/30 border-2 border-dashed border-muted-foreground/10 overflow-hidden flex items-center justify-center group relative">
+              <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Image</Label>
+              <div className="flex gap-3 items-start">
+                <div className="w-20 h-20 rounded-xl bg-muted/30 border overflow-hidden flex-shrink-0 flex items-center justify-center">
                   {form.imageUrl ? (
-                    <>
-                      <img src={form.imageUrl} alt="Preview" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Button
-                          size="icon"
-                          variant="destructive"
-                          className="h-8 w-8 rounded-full"
-                          onClick={() => setForm((f) => ({ ...f, imageUrl: "" }))}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </>
+                    <img src={form.imageUrl} alt="Preview" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="text-center p-4">
-                      <ImageIcon className="h-8 w-8 text-muted-foreground/30 mx-auto mb-1" />
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">No Image</p>
-                    </div>
+                    <ImageIcon className="h-6 w-6 text-muted-foreground/30" />
                   )}
                 </div>
-                <label className="col-span-2 h-32 flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-primary/20 bg-primary/5 cursor-pointer hover:bg-primary/10 transition-all group">
-                  <div className="bg-primary/10 p-2 rounded-xl group-hover:scale-110 transition-transform">
-                    <Upload className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="text-center">
-                    <span className="text-sm font-bold block">{uploading ? "Uploading..." : "Click to Upload"}</span>
-                    <span className="text-[10px] font-medium text-muted-foreground">PNG, JPG up to 5MB</span>
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageUpload}
-                    disabled={uploading}
-                  />
-                </label>
+                <Input
+                  className="flex-1"
+                  placeholder="Image URL (e.g. https://images.unsplash.com/...)"
+                  value={form.imageUrl}
+                  onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
+                />
               </div>
             </div>
 

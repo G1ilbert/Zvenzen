@@ -10,7 +10,6 @@ import com.zvenzen.entity.ProductOption;
 import com.zvenzen.exception.ResourceNotFoundException;
 import com.zvenzen.repository.CategoryRepository;
 import com.zvenzen.repository.ProductRepository;
-import com.zvenzen.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,6 @@ public class ShopMenuService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    private final StorageService storageService;
 
     @Transactional(readOnly = true)
     public List<MenuItemDto> getAllMenuItems() {
@@ -75,18 +73,13 @@ public class ShopMenuService {
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.getCategoryId()));
 
-        // Delete old image from storage if being replaced
-        String oldImageUrl = product.getImageUrl();
-        String newImageUrl = request.getImageUrl();
-        if (oldImageUrl != null && !oldImageUrl.isBlank()
-                && (newImageUrl == null || !oldImageUrl.equals(newImageUrl))) {
-            storageService.deleteImage(oldImageUrl);
-        }
-
         product.setCategory(category);
         product.setName(request.getName());
         product.setBasePrice(request.getBasePrice());
         product.setImageUrl(request.getImageUrl());
+        if (request.getIsActive() != null) {
+            product.setIsActive(request.getIsActive());
+        }
 
         // Replace options
         product.getOptions().clear();
