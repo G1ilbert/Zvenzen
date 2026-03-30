@@ -39,10 +39,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <header className="flex h-16 items-center justify-between border-b bg-white/80 backdrop-blur-md px-4 md:hidden z-40">
           <div className="flex items-center gap-3">
             <Sheet open={open} onOpenChange={setOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-xl">
-                  <Menu className="h-5 w-5" />
-                </Button>
+              <SheetTrigger
+                render={<Button variant="ghost" size="icon" className="rounded-xl" />}
+              >
+                <Menu className="h-5 w-5" />
               </SheetTrigger>
               <SheetContent side="left" className="w-64 p-0 border-none">
                 <SheetTitle className="sr-only">Navigation</SheetTitle>
