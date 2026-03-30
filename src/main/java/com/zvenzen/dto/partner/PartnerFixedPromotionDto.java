@@ -11,5 +11,6 @@ public class PartnerFixedPromotionDto {
     private Long id;
     private String name;
     private BigDecimal discountValue;
+    private BigDecimal minOrderAmount;
     private int couponsRemaining;
 }

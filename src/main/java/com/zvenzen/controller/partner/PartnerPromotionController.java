@@ -37,6 +37,7 @@ public class PartnerPromotionController {
                         .id(p.getId())
                         .name(p.getName())
                         .discountValue(p.getDiscountValue())
+                        .minOrderAmount(p.getMinOrderAmount())
                         .couponsRemaining(remaining)
                         .build());
             } else if ("free_items".equals(p.getDiscountType())) {
@@ -52,6 +53,7 @@ public class PartnerPromotionController {
                         .name(p.getName())
                         .productName(productName)
                         .optionName(optionName)
+                        .minOrderAmount(p.getMinOrderAmount())
                         .couponsRemaining(remaining)
                         .build());
             }
