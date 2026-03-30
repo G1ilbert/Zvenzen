@@ -124,7 +124,8 @@ public class ShopPromotionService {
                 .maxCoupons(promo.getMaxCoupons())
                 .couponsUsed(promo.getCouponsUsed())
                 .validFrom(promo.getValidFrom())
-                .validUntil(promo.getValidUntil());
+                .validUntil(promo.getValidUntil())
+                .isActive(promo.getIsActive());
 
         if ("free_items".equals(promo.getDiscountType()) && promo.getFreeItems() != null) {
             List<FreeItemDto> freeItems = promo.getFreeItems().stream()

@@ -15,5 +15,6 @@ public class MenuItemDto {
     private String imageUrl;
     private String categoryName;
     private Long categoryId;
+    private Boolean isActive;
     private List<ProductOptionDto> options;
 }

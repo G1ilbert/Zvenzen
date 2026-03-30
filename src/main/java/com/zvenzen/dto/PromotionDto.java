@@ -20,6 +20,7 @@ public class PromotionDto {
     private Integer couponsUsed;
     private LocalDateTime validFrom;
     private LocalDateTime validUntil;
+    private Boolean isActive;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<FreeItemDto> freeItems;

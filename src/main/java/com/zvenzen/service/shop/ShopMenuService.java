@@ -132,6 +132,7 @@ public class ShopMenuService {
                 .imageUrl(product.getImageUrl())
                 .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
                 .categoryName(product.getCategory() != null ? product.getCategory().getName() : null)
+                .isActive(product.getIsActive())
                 .options(options)
                 .build();
     }
