@@ -420,60 +420,6 @@ export default function PosPage() {
                 </div>
               </div>
 
-              {/* Collaboration Coupon Section */}
-              <div className="bg-gradient-to-br from-primary/5 to-primary/20 border border-primary/10 rounded-2xl p-5 shadow-inner">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="bg-white p-2 rounded-xl shadow-sm">
-                    <Gift className="h-5 w-5 text-primary" />
-                  </div>
-                  <span className="font-black text-sm tracking-tight">
-                    Special Gift for You!
-                  </span>
-                </div>
-
-                {!collabCoupon ? (
-                  <div className="space-y-3">
-                    <p className="text-xs font-bold text-muted-foreground leading-relaxed">
-                      You've unlocked a special collaboration coupon! Click below to claim it.
-                    </p>
-                    <Button
-                      className="w-full h-11 rounded-xl bg-primary text-white font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
-                      onClick={handleGetCollabCoupon}
-                      disabled={collabLoading}
-                    >
-                      {collabLoading ? "Claiming..." : "Claim Coupon"}
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-black uppercase tracking-widest text-primary">{collabCoupon.coupoun_name}</span>
-                      <Badge className="bg-white text-primary border-none font-bold">฿{collabCoupon.coupoun_discount} OFF</Badge>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 bg-white border-2 border-dashed border-primary/30 rounded-xl px-4 py-2.5 text-center font-mono text-base font-black tracking-widest text-primary">
-                        {collabCoupon.coupon_code}
-                      </div>
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        className="h-11 w-11 rounded-xl shadow-sm"
-                        onClick={() => handleCopyCoupon(collabCoupon.coupon_code)}
-                      >
-                        {copied ? (
-                          <Check className="h-5 w-5 text-emerald-600" />
-                        ) : (
-                          <Copy className="h-5 w-5 text-primary" />
-                        )}
-                      </Button>
-                    </div>
-                    <p className="text-[10px] font-bold text-center text-primary/60 uppercase tracking-widest">
-                      Copy and use this code on your next visit!
-                    </p>
-                  </div>
-                )}
-              </div>
-              
               <Button className="w-full h-12 rounded-2xl font-bold" variant="secondary" onClick={() => setReceiptOpen(false)}>
                 Close Receipt
               </Button>

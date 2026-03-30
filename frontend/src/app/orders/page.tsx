@@ -279,9 +279,10 @@ export default function OrdersPage() {
                 </>
               )}
 
+              {detail.status === "completed" && (<>
               <Separator />
 
-              {/* Collaboration Coupon Section */}
+              {/* Collaboration Coupon Section — only for completed orders */}
               <div className="bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-200 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Gift className="h-5 w-5 text-pink-600" />
@@ -335,6 +336,7 @@ export default function OrdersPage() {
                   </div>
                 )}
               </div>
+              </>)}
             </div>
           )}
         </DialogContent>
