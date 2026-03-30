@@ -1,6 +1,9 @@
 package com.zvenzen.controller.partner;
 
 import com.zvenzen.dto.*;
+import com.zvenzen.dto.partner.PartnerCouponResponseDto;
+import com.zvenzen.dto.partner.PartnerFixedPromotionDto;
+import com.zvenzen.dto.partner.PartnerFreeItemPromotionDto;
 import com.zvenzen.service.CouponService;
 import com.zvenzen.service.MenuService;
 import com.zvenzen.service.PromotionService;
@@ -11,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,17 +31,49 @@ public class PartnerPromotionController {
 
     @GetMapping("/promotions")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getPromotions() {
+        List<PromotionDto> allPromos = promotionService.getActivePromotions();
+        List<Object> promotions = new ArrayList<>();
+
+        for (PromotionDto p : allPromos) {
+            int remaining = p.getMaxCoupons() - p.getCouponsUsed();
+            if ("fixed".equals(p.getDiscountType())) {
+                promotions.add(PartnerFixedPromotionDto.builder()
+                        .name(p.getName())
+                        .discountValue(p.getDiscountValue())
+                        .couponsRemaining(remaining)
+                        .build());
+            } else if ("free_items".equals(p.getDiscountType())) {
+                String productName = null;
+                String optionName = null;
+                if (p.getFreeItems() != null && !p.getFreeItems().isEmpty()) {
+                    FreeItemDto fi = p.getFreeItems().get(0);
+                    productName = fi.getProductName();
+                    optionName = fi.getOptionName();
+                }
+                promotions.add(PartnerFreeItemPromotionDto.builder()
+                        .name(p.getName())
+                        .productName(productName)
+                        .optionName(optionName)
+                        .couponsRemaining(remaining)
+                        .build());
+            }
+        }
+
         Map<String, Object> result = new HashMap<>();
-        result.put("promotions", promotionService.getActivePromotions());
+        result.put("promotions", promotions);
         result.put("menu", menuService.getAllActiveMenuItems());
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
     @PostMapping("/coupons/issue")
-    public ResponseEntity<ApiResponse<CouponDto>> issueCoupon(
+    public ResponseEntity<ApiResponse<PartnerCouponResponseDto>> issueCoupon(
             @Valid @RequestBody IssueCouponRequest request) {
         CouponDto coupon = couponService.issueCoupon(request.getPromotionId());
+        PartnerCouponResponseDto response = PartnerCouponResponseDto.builder()
+                .code(coupon.getCode())
+                .promotionName(coupon.getPromotionName())
+                .build();
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok(coupon));
+                .body(ApiResponse.ok(response));
     }
 }
