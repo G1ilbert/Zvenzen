@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/shop/promotions")
 @RequiredArgsConstructor
-@io.swagger.v3.oas.annotations.tags.Tag(name = "Shop - Promotions", description = "Promotion management (internal)")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "7. Shop - Promotions", description = "จัดการโปรโมชั่น")
 public class ShopPromotionController {
 
     private final ShopPromotionService shopPromotionService;

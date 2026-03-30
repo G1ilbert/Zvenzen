@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/shop/dashboard")
 @RequiredArgsConstructor
-@io.swagger.v3.oas.annotations.tags.Tag(name = "Shop - Dashboard", description = "Sales dashboard (internal)")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "8. Shop - Dashboard", description = "สรุปยอดขายและรายงาน")
 public class ShopDashboardController {
 
     private final ShopDashboardService shopDashboardService;

@@ -21,7 +21,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/shop/menu")
 @RequiredArgsConstructor
-@Tag(name = "Shop - Menu", description = "Product management (internal)")
+@Tag(name = "5. Shop - Menu", description = "จัดการเมนูสินค้า")
 public class ShopMenuController {
 
     private final ShopMenuService shopMenuService;

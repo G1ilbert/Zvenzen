@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/shop/categories")
 @RequiredArgsConstructor
-@io.swagger.v3.oas.annotations.tags.Tag(name = "Shop - Categories", description = "Category management (internal)")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "4. Shop - Categories", description = "จัดการหมวดหมู่")
 public class ShopCategoryController {
 
     private final ShopCategoryService shopCategoryService;

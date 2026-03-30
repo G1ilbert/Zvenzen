@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/partner/menu")
 @RequiredArgsConstructor
-@io.swagger.v3.oas.annotations.tags.Tag(name = "Partner - Menu", description = "Menu for partners (requires X-API-KEY)")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "1. Partner - Menu", description = "ดูเมนูไอติม (ต้องใช้ X-API-KEY)")
 @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "api-key")
 public class PartnerMenuController {
 
