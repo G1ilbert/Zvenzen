@@ -50,7 +50,7 @@ ON CONFLICT (id) DO UPDATE SET category_id = EXCLUDED.category_id, name = EXCLUD
 -- 3 Cakes
 INSERT INTO products (id, category_id, name, base_price, image_url, is_active) VALUES
   (13, 3, 'ลาวาเค้ก', 129.00, 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=400&h=400&fit=crop', true),
-  (14, 3, 'เครปไอติม', 99.00, 'https://images.unsplash.com/photo-1519676867240-f03562e64571?w=400&h=400&fit=crop', true),
+  (14, 3, 'เครปไอติม', 99.00, 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&h=400&fit=crop', true),
   (15, 3, 'ชีสเค้ก', 119.00, 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop', true)
 ON CONFLICT (id) DO UPDATE SET category_id = EXCLUDED.category_id, name = EXCLUDED.name, base_price = EXCLUDED.base_price, image_url = EXCLUDED.image_url;
 
@@ -102,3 +102,7 @@ FROM promotions p, products pr
 WHERE p.name = 'แจกเครปไอติมฟรี'
   AND pr.name = 'เครปไอติม'
 ON CONFLICT DO NOTHING;
+
+-- Delete products without images
+DELETE FROM product_options WHERE product_id IN (SELECT id FROM products WHERE image_url IS NULL OR image_url = '');
+DELETE FROM products WHERE image_url IS NULL OR image_url = '';
