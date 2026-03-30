@@ -93,7 +93,23 @@ public class ShopOrderService {
 
             switch (promotion.getDiscountType()) {
                 case "fixed" -> discountAmount = promotion.getDiscountValue();
-                case "free_items" -> discountAmount = BigDecimal.ZERO;
+                case "free_items" -> {
+                    discountAmount = BigDecimal.ZERO;
+                    // Fetch promotion with free items (lazy-loaded)
+                    Promotion promoWithItems = promotionRepository.findByIdWithFreeItems(promotion.getId())
+                            .orElse(promotion);
+                    for (PromotionFreeItem fi : promoWithItems.getFreeItems()) {
+                        OrderItem freeOrderItem = OrderItem.builder()
+                                .order(order)
+                                .product(fi.getProduct())
+                                .option(fi.getOption())
+                                .quantity(fi.getQuantity())
+                                .unitPrice(BigDecimal.ZERO)
+                                .subtotal(BigDecimal.ZERO)
+                                .build();
+                        orderItems.add(freeOrderItem);
+                    }
+                }
                 default -> discountAmount = BigDecimal.ZERO;
             }
 
