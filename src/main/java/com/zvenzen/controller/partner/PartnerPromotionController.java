@@ -1,30 +1,43 @@
 package com.zvenzen.controller.partner;
 
-import com.zvenzen.dto.ApiResponse;
-import com.zvenzen.dto.PromotionDto;
+import com.zvenzen.dto.*;
+import com.zvenzen.service.CouponService;
+import com.zvenzen.service.MenuService;
 import com.zvenzen.service.PromotionService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/partner/promotions")
+@RequestMapping("/api/v1/partner")
 @RequiredArgsConstructor
-@io.swagger.v3.oas.annotations.tags.Tag(name = "2. Partner - Promotions", description = "ดูโปรโมชั่น (ต้องใช้ X-API-KEY)")
-@io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "api-key")
+@Tag(name = "1. Partner API", description = "ดูโปรโมชั่นพร้อมเมนู และออกคูปอง")
 public class PartnerPromotionController {
 
     private final PromotionService promotionService;
+    private final MenuService menuService;
+    private final CouponService couponService;
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<PromotionDto>>> getActive() {
-        return ResponseEntity.ok(ApiResponse.ok(promotionService.getActivePromotions()));
+    @GetMapping("/promotions")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getPromotions() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("promotions", promotionService.getActivePromotions());
+        result.put("menu", menuService.getAllActiveMenuItems());
+        return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<PromotionDto>> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.ok(promotionService.getPromotionById(id)));
+    @PostMapping("/coupons/issue")
+    public ResponseEntity<ApiResponse<CouponDto>> issueCoupon(
+            @Valid @RequestBody IssueCouponRequest request) {
+        CouponDto coupon = couponService.issueCoupon(request.getPromotionId());
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok(coupon));
     }
 }
