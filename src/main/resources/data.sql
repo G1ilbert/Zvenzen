@@ -83,6 +83,18 @@ ON CONFLICT DO NOTHING;
 
 -- Cakes have no options
 
+-- Reset sequences to start AFTER the manual inserts
+-- This prevents "duplicate key value violates unique constraint" when calling POST APIs
+SELECT setval('categories_id_seq', (SELECT MAX(id) FROM categories));
+SELECT setval('products_id_seq', (SELECT MAX(id) FROM products));
+SELECT setval('product_options_id_seq', (SELECT MAX(id) FROM product_options));
+SELECT setval('promotions_id_seq', (SELECT MAX(id) FROM promotions));
+SELECT setval('promotion_free_items_id_seq', (SELECT MAX(id) FROM promotion_free_items));
+SELECT setval('orders_id_seq', (SELECT MAX(id) FROM orders));
+SELECT setval('order_items_id_seq', (SELECT MAX(id) FROM order_items));
+SELECT setval('coupons_id_seq', (SELECT MAX(id) FROM coupons));
+SELECT setval('coupon_usages_id_seq', (SELECT MAX(id) FROM coupon_usages));
+
 -- Promotions
 INSERT INTO promotions (name, discount_type, discount_value, min_order_amount, max_coupons, coupons_used, valid_from, valid_until, is_active)
 VALUES

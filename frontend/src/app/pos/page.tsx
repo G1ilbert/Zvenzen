@@ -157,18 +157,20 @@ export default function PosPage() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-6rem)]">
+    <div className="flex flex-col lg:flex-row gap-8 h-[calc(100vh-6rem)] animate-in fade-in duration-700">
       {/* Left: Product Grid */}
-      <div className="flex-[3] flex flex-col min-h-0 space-y-4">
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide shrink-0 px-1">
+      <div className="flex-[2.8] flex flex-col min-h-0 space-y-6">
+        <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide shrink-0 px-1 pt-1">
           {categories.map((cat) => (
             <Button
               key={cat.id}
               variant={activeCategory === cat.id ? "default" : "secondary"}
-              size="default"
+              size="lg"
               className={cn(
-                "whitespace-nowrap px-6 rounded-full transition-all duration-200 shadow-sm hover:shadow",
-                activeCategory === cat.id ? "scale-105" : "opacity-80 hover:opacity-100"
+                "whitespace-nowrap px-8 rounded-2xl transition-all duration-300 font-bold",
+                activeCategory === cat.id 
+                  ? "shadow-lg shadow-primary/20 scale-105" 
+                  : "bg-white hover:bg-primary/5 hover:text-primary border-none shadow-sm ring-1 ring-black/[0.03]"
               )}
               onClick={() => setActiveCategory(cat.id)}
             >
@@ -177,35 +179,49 @@ export default function PosPage() {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto flex-1 pr-2 custom-scrollbar">
+        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 overflow-y-auto flex-1 pr-4 custom-scrollbar pb-10">
           {filteredProducts.map((product) => (
-            <div
+            <Card
               key={product.id}
-              className="cursor-pointer rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all h-[220px] relative"
+              className="group cursor-pointer border-none shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden bg-white/40 backdrop-blur-md hover:-translate-y-2 ring-1 ring-black/[0.03] rounded-[2rem]"
               onClick={() => handleProductClick(product)}
             >
-              <img
-                src={product.imageUrl || ""}
-                alt={product.name}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-3">
-                <p className="font-medium text-white text-sm drop-shadow">{product.name}</p>
-                <p className="text-rose-300 font-semibold text-sm drop-shadow">{money(product.basePrice)}</p>
-              </div>
-              {product.options && product.options.length > 0 && (
-                <span className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
-                  {product.options.length} options
-                </span>
-              )}
-            </div>
+              <CardContent className="p-0 flex flex-col h-full">
+                <div className="aspect-square w-full relative overflow-hidden bg-muted/20">
+                  {product.imageUrl ? (
+                    <img 
+                      src={product.imageUrl} 
+                      alt={product.name} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/20">
+                      <span className="text-5xl filter drop-shadow-xl group-hover:scale-110 transition-transform duration-500">🍦</span>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  {product.options?.length > 0 && (
+                    <div className="absolute top-3 right-3">
+                      <Badge className="bg-white/90 text-primary border-none font-black text-[9px] uppercase tracking-widest backdrop-blur-xl shadow-sm px-2">
+                        {product.options.length} Styles
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+                <div className="p-5 flex flex-col items-center text-center space-y-2">
+                  <h3 className="font-bold text-sm line-clamp-1 group-hover:text-primary transition-colors tracking-tight">{product.name}</h3>
+                  <div className="bg-primary/5 px-3 py-1 rounded-full">
+                    <p className="text-primary font-black text-base">{money(product.basePrice)}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           ))}
           {filteredProducts.length === 0 && (
-            <div className="col-span-full flex flex-col items-center justify-center py-20 text-muted-foreground bg-muted/20 rounded-2xl border-2 border-dashed">
-              <span className="text-4xl mb-4">🍨</span>
-              <p className="text-lg font-medium">No products in this category</p>
-              <p className="text-sm">Please try selecting another category</p>
+            <div className="col-span-full flex flex-col items-center justify-center py-32 text-muted-foreground bg-white/30 backdrop-blur-sm rounded-[3rem] border-2 border-dashed border-muted-foreground/10">
+              <div className="h-20 w-20 bg-muted/20 rounded-full flex items-center justify-center text-5xl mb-6">🍨</div>
+              <p className="text-xl font-black tracking-tight text-foreground">Awaiting Delights...</p>
+              <p className="text-sm font-medium opacity-60 mt-1">Select a category to explore our treats.</p>
             </div>
           )}
         </div>
@@ -361,7 +377,7 @@ export default function PosPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-none font-bold">
-                    {opt.extraPrice > 0 ? `+${money(opt.extraPrice)}` : "Free"}
+                    {opt.extraPrice > 0 ? `+${money(opt.extraPrice)}` : money(optionDialog!.basePrice)}
                   </Badge>
                   <Plus className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
