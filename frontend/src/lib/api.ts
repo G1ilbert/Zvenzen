@@ -61,7 +61,7 @@ export const createOrder = (data: {
   couponCode?: string | null;
 }) => post<Order>("/orders", data);
 export const updateOrderStatus = (id: number, status: string) =>
-  patch<Order>(`/orders/${id}/status`, { status });
+  put<Order>(`/orders/${id}/status`, { status });
 
 // Promotions
 export const getPromotions = () => get<Promotion[]>("/promotions");

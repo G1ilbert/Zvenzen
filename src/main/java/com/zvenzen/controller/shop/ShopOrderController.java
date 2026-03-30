@@ -38,7 +38,7 @@ public class ShopOrderController {
         return ResponseEntity.ok(ApiResponse.ok(shopOrderService.getOrderById(id)));
     }
 
-    @PatchMapping("/{id}/status")
+    @PutMapping("/{id}/status")
     public ResponseEntity<ApiResponse<OrderDto>> updateStatus(
             @PathVariable Long id, @Valid @RequestBody UpdateStatusRequest request) {
         return ResponseEntity.ok(ApiResponse.ok(shopOrderService.updateStatus(id, request.getStatus())));
