@@ -140,20 +140,6 @@ INSERT INTO product_options (id, product_id, option_name, extra_price, is_defaul
 (57, 31, 'พร้อมไอติม 2 สกู๊ป', 25.00, false)
 ON CONFLICT (id) DO NOTHING;
 
--- Promotions (3) — fixed and free_items only
-INSERT INTO promotions (id, name, discount_type, discount_value, min_order_amount, max_coupons, coupons_used, valid_from, valid_until, is_active) VALUES
-(1, 'ลด 20 บาท ทุกบิล', 'fixed', 20.00, NULL, 200, 0, '2024-03-01 00:00:00', '2026-12-31 23:59:59', true),
-(3, 'ครบ 399 รับไอติม+ท็อปปิ้งฟรี', 'free_items', NULL, 399.00, 100, 0, '2024-03-01 00:00:00', '2026-12-31 23:59:59', true),
-(5, 'แจกวาฟเฟิลฟรี', 'free_items', NULL, 300.00, 50, 0, '2024-01-01 00:00:00', '2026-12-31 23:59:59', true)
-ON CONFLICT (id) DO NOTHING;
-
--- Promotion Free Items
-INSERT INTO promotion_free_items (id, promotion_id, product_id, option_id, quantity) VALUES
-(1, 3, 1, 1, 1),
-(2, 3, 16, NULL, 1),
-(3, 5, 29, 52, 1)
-ON CONFLICT (id) DO NOTHING;
-
 -- Update image URLs for existing products (in case rows already existed with NULL images)
 UPDATE products SET image_url = 'https://images.unsplash.com/photo-1570197571499-166b36435e9f?w=400&h=400&fit=crop' WHERE id = 1 AND (image_url IS NULL OR image_url = '');
 UPDATE products SET image_url = 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&h=400&fit=crop' WHERE id = 2 AND (image_url IS NULL OR image_url = '');
@@ -193,7 +179,35 @@ DELETE FROM promotion_free_items WHERE product_id IN (SELECT id FROM products WH
 DELETE FROM product_options WHERE product_id IN (SELECT id FROM products WHERE image_url IS NULL OR image_url = '');
 DELETE FROM products WHERE image_url IS NULL OR image_url = '';
 
--- Remove percent promotions (child records first to respect FK constraints)
-DELETE FROM coupons WHERE promotion_id IN (SELECT id FROM promotions WHERE discount_type = 'percent');
-DELETE FROM promotion_free_items WHERE promotion_id IN (SELECT id FROM promotions WHERE discount_type = 'percent');
-DELETE FROM promotions WHERE discount_type = 'percent';
+-- Delete all old coupons and promotions
+DELETE FROM coupon_usages;
+DELETE FROM coupons;
+DELETE FROM promotion_free_items;
+DELETE FROM promotions;
+
+-- Create new promotions with max_coupons = 10
+INSERT INTO promotions (name, discount_type, discount_value, min_order_amount, max_coupons, coupons_used, valid_from, valid_until, is_active)
+VALUES
+  ('ลด 20 บาท ทุกบิล', 'fixed', 20.00, 0.00, 10, 0, '2024-01-01 00:00:00', '2026-12-31 23:59:59', true),
+  ('ลด 50 บาท เมื่อซื้อครบ 200', 'fixed', 50.00, 200.00, 10, 0, '2024-01-01 00:00:00', '2026-12-31 23:59:59', true),
+  ('แจกไอติมวานิลลาฟรี', 'free_items', 0.00, 100.00, 10, 0, '2024-01-01 00:00:00', '2026-12-31 23:59:59', true),
+  ('แจกวาฟเฟิลคลาสสิกฟรี', 'free_items', 0.00, 300.00, 10, 0, '2024-01-01 00:00:00', '2026-12-31 23:59:59', true);
+
+-- Add free items for free_items promotions (use subquery for correct IDs)
+INSERT INTO promotion_free_items (promotion_id, product_id, option_id, quantity)
+SELECT p.id, pr.id, po.id, 1
+FROM promotions p, products pr, product_options po
+WHERE p.name = 'แจกไอติมวานิลลาฟรี'
+  AND pr.name = 'วานิลลา'
+  AND po.product_id = pr.id
+  AND po.is_default = true
+ON CONFLICT DO NOTHING;
+
+INSERT INTO promotion_free_items (promotion_id, product_id, option_id, quantity)
+SELECT p.id, pr.id, po.id, 1
+FROM promotions p, products pr, product_options po
+WHERE p.name = 'แจกวาฟเฟิลคลาสสิกฟรี'
+  AND pr.name = 'วาฟเฟิลคลาสสิก'
+  AND po.product_id = pr.id
+  AND po.is_default = true
+ON CONFLICT DO NOTHING;
