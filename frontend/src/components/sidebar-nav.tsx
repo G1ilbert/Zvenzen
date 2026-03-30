@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard,
   IceCreamCone,
   ClipboardList,
   ShoppingCart,
@@ -12,10 +11,9 @@ import {
 } from "lucide-react";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/pos", label: "POS", icon: ShoppingCart },
   { href: "/menu", label: "Menu", icon: IceCreamCone },
   { href: "/orders", label: "Orders", icon: ClipboardList },
-  { href: "/pos", label: "POS", icon: ShoppingCart },
   { href: "/promotions", label: "Promotions", icon: Gift },
 ];
 
@@ -25,7 +23,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <nav className="flex flex-col gap-1 px-3">
       {navItems.map((item) => {
-        const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+        const active = pathname.startsWith(item.href);
         return (
           <Link
             key={item.href}

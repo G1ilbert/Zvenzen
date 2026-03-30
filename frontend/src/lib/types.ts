@@ -104,3 +104,13 @@ export interface CartItem {
   unitPrice: number;
   quantity: number;
 }
+
+export interface CollabCoupon {
+  coupon_id: number;
+  coupoun_name: string;
+  coupoun_discount: number;
+  coupon_code: string;
+  promotion_campain_id: number;
+  status: string;
+  created_at: string | null;
+}

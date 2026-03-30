@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
-import { Minus, Plus, Trash2, ShoppingCart, Ticket } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingCart, Ticket, Gift, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,9 +15,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { getCategories, getMenu, createOrder } from "@/lib/api";
-import { money } from "@/lib/format";
-import type { Category, Product, CartItem, ProductOption } from "@/lib/types";
+import { getCategories, getMenu, createOrder, createCollabCoupon } from "@/lib/api";
+import { money, formatDateTime } from "@/lib/format";
+import type { Category, Product, CartItem, ProductOption, Order, CollabCoupon } from "@/lib/types";
 
 export default function PosPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -27,6 +27,15 @@ export default function PosPage() {
   const [couponCode, setCouponCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [optionDialog, setOptionDialog] = useState<Product | null>(null);
+
+  // Receipt state
+  const [receiptOrder, setReceiptOrder] = useState<Order | null>(null);
+  const [receiptOpen, setReceiptOpen] = useState(false);
+
+  // Collab coupon state
+  const [collabLoading, setCollabLoading] = useState(false);
+  const [collabCoupon, setCollabCoupon] = useState<CollabCoupon | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     Promise.all([getCategories(), getMenu()]).then(([cats, prods]) => {
@@ -105,9 +114,11 @@ export default function PosPage() {
         })),
         couponCode: couponCode.trim() || null,
       });
-      toast.success(`Order ${order.orderRef} created!`, {
-        description: `Total: ${money(order.finalAmount)}`,
-      });
+      // Show receipt dialog instead of just toast
+      setReceiptOrder(order);
+      setCollabCoupon(null);
+      setCopied(false);
+      setReceiptOpen(true);
       setCart([]);
       setCouponCode("");
     } catch (err: unknown) {
@@ -118,6 +129,29 @@ export default function PosPage() {
       toast.error(axiosMsg || msg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGetCollabCoupon = async () => {
+    setCollabLoading(true);
+    try {
+      const coupon = await createCollabCoupon();
+      setCollabCoupon(coupon);
+      toast.success("ได้รับคูปองแล้ว!");
+    } catch {
+      toast.error("ไม่สามารถรับคูปองได้ กรุณาลองใหม่");
+    } finally {
+      setCollabLoading(false);
+    }
+  };
+
+  const handleCopyCoupon = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Copy failed");
     }
   };
 
@@ -274,6 +308,136 @@ export default function PosPage() {
               </Button>
             ))}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Receipt dialog */}
+      <Dialog open={receiptOpen} onOpenChange={setReceiptOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-lg">ใบเสร็จ / Receipt</DialogTitle>
+            <DialogDescription className="text-center">
+              {receiptOrder?.orderRef} &mdash; {receiptOrder && formatDateTime(receiptOrder.createdAt)}
+            </DialogDescription>
+          </DialogHeader>
+
+          {receiptOrder && (
+            <div className="space-y-3">
+              {/* Items */}
+              <div className="space-y-1">
+                {receiptOrder.items?.map((item) => (
+                  <div key={item.id} className="flex justify-between text-sm">
+                    <span>
+                      {item.productName}
+                      {item.optionName && (
+                        <span className="text-muted-foreground"> ({item.optionName})</span>
+                      )}
+                      {" x"}{item.quantity}
+                    </span>
+                    <span>{money(item.subtotal)}</span>
+                  </div>
+                ))}
+              </div>
+
+              <Separator />
+
+              {/* Totals */}
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span>{money(receiptOrder.totalAmount)}</span>
+                </div>
+                {receiptOrder.discountAmount > 0 && (
+                  <div className="flex justify-between text-orange-600">
+                    <span>
+                      Discount
+                      {receiptOrder.coupon && (
+                        <span className="text-xs ml-1">({receiptOrder.coupon.promotionName})</span>
+                      )}
+                    </span>
+                    <span>-{money(receiptOrder.discountAmount)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between font-bold text-base pt-1">
+                  <span>Total</span>
+                  <span className="text-emerald-600">{money(receiptOrder.finalAmount)}</span>
+                </div>
+              </div>
+
+              {/* Coupon info if applied */}
+              {receiptOrder.coupon && (
+                <>
+                  <Separator />
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-sm">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Ticket className="h-4 w-4 text-orange-600" />
+                      <span className="font-semibold text-orange-800">Coupon Applied</span>
+                    </div>
+                    <div className="text-orange-700">
+                      {receiptOrder.coupon.promotionName} &mdash; {`-${receiptOrder.coupon.discountValue} บาท`}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <Separator />
+
+              {/* Collaboration Coupon Section */}
+              <div className="bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-200 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Gift className="h-5 w-5 text-pink-600" />
+                  <span className="font-semibold text-pink-800">
+                    Zvenzen x น้ำเต้าหู้ Collaboration
+                  </span>
+                </div>
+
+                {!collabCoupon ? (
+                  <>
+                    <p className="text-sm text-pink-700 mb-3">
+                      รับคูปองส่วนลดพิเศษจาก collaboration กับกลุ่มน้ำเต้าหู้!
+                    </p>
+                    <Button
+                      className="w-full bg-pink-600 hover:bg-pink-700 text-white"
+                      onClick={handleGetCollabCoupon}
+                      disabled={collabLoading}
+                    >
+                      <Gift className="h-4 w-4 mr-2" />
+                      {collabLoading ? "กำลังสร้างคูปอง..." : "รับคูปอง"}
+                    </Button>
+                  </>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-pink-800">
+                      {collabCoupon.coupoun_name}
+                    </div>
+                    <div className="text-sm text-pink-700">
+                      ส่วนลด: {collabCoupon.coupoun_discount} บาท
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <code className="flex-1 bg-white border border-pink-300 rounded px-3 py-2 text-center font-mono text-sm font-bold tracking-wider">
+                        {collabCoupon.coupon_code}
+                      </code>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-9 w-9 border-pink-300"
+                        onClick={() => handleCopyCoupon(collabCoupon.coupon_code)}
+                      >
+                        {copied ? (
+                          <Check className="h-4 w-4 text-emerald-600" />
+                        ) : (
+                          <Copy className="h-4 w-4 text-pink-600" />
+                        )}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-pink-600">
+                      ใช้โค้ดนี้ในการสั่งซื้อครั้งถัดไปเพื่อรับส่วนลด!
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

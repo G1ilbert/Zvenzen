@@ -6,6 +6,7 @@ import type {
   Promotion,
   DashboardSummary,
   TopProduct,
+  CollabCoupon,
 } from "./types";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1/shop";
@@ -83,3 +84,11 @@ export const togglePromotion = (id: number) => patch<Promotion>(`/promotions/${i
 // Dashboard
 export const getDashboardSummary = () => get<DashboardSummary>("/dashboard/summary");
 export const getTopProducts = () => get<TopProduct[]>("/dashboard/top-products");
+
+// Collaboration Coupon (soasoymilk x zvenzen)
+const COLLAB_API = "https://soasoymilkapi-production.up.railway.app/colab/ice-cream";
+
+export const createCollabCoupon = async (): Promise<CollabCoupon> => {
+  const res = await axios.post<{ message: string; data: CollabCoupon }>(COLLAB_API);
+  return res.data.data;
+};

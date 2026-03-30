@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Ticket, Gift, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -29,9 +30,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
-import { getOrders, getOrder, updateOrderStatus } from "@/lib/api";
+import { getOrders, getOrder, updateOrderStatus, createCollabCoupon } from "@/lib/api";
 import { money, formatDateTime } from "@/lib/format";
-import type { Order } from "@/lib/types";
+import type { Order, CollabCoupon } from "@/lib/types";
 
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -46,6 +47,11 @@ export default function OrdersPage() {
   const [detail, setDetail] = useState<Order | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  // Collab coupon state
+  const [collabLoading, setCollabLoading] = useState(false);
+  const [collabCoupon, setCollabCoupon] = useState<CollabCoupon | null>(null);
+  const [copied, setCopied] = useState(false);
+
   const load = () => {
     const params: Record<string, string> = {};
     if (statusFilter !== "all") params.status = statusFilter;
@@ -59,6 +65,8 @@ export default function OrdersPage() {
     try {
       const order = await getOrder(id);
       setDetail(order);
+      setCollabCoupon(null);
+      setCopied(false);
       setDialogOpen(true);
     } catch {
       toast.error("Failed to load order details");
@@ -74,6 +82,29 @@ export default function OrdersPage() {
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed";
       toast.error(msg);
+    }
+  };
+
+  const handleGetCollabCoupon = async () => {
+    setCollabLoading(true);
+    try {
+      const coupon = await createCollabCoupon();
+      setCollabCoupon(coupon);
+      toast.success("ได้รับคูปองแล้ว!");
+    } catch {
+      toast.error("ไม่สามารถรับคูปองได้ กรุณาลองใหม่");
+    } finally {
+      setCollabLoading(false);
+    }
+  };
+
+  const handleCopyCoupon = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Copy failed");
     }
   };
 
@@ -156,13 +187,13 @@ export default function OrdersPage() {
         </CardContent>
       </Card>
 
-      {/* Order detail dialog */}
+      {/* Order detail / Receipt dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{detail?.orderRef}</DialogTitle>
-            <DialogDescription>
-              {detail && formatDateTime(detail.createdAt)}
+            <DialogTitle className="text-center text-lg">ใบเสร็จ / Receipt</DialogTitle>
+            <DialogDescription className="text-center">
+              {detail?.orderRef} &mdash; {detail && formatDateTime(detail.createdAt)}
             </DialogDescription>
           </DialogHeader>
           {detail && (
@@ -191,14 +222,42 @@ export default function OrdersPage() {
                 </div>
                 {detail.discountAmount > 0 && (
                   <div className="flex justify-between text-orange-600">
-                    <span>Discount</span><span>-{money(detail.discountAmount)}</span>
+                    <span>
+                      Discount
+                      {detail.coupon && (
+                        <span className="text-xs ml-1">({detail.coupon.promotionName})</span>
+                      )}
+                    </span>
+                    <span>-{money(detail.discountAmount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between font-bold text-base">
-                  <span>Total</span><span>{money(detail.finalAmount)}</span>
+                <div className="flex justify-between font-bold text-base pt-1">
+                  <span>Total</span>
+                  <span className="text-emerald-600">{money(detail.finalAmount)}</span>
                 </div>
               </div>
 
+              {/* Coupon info if applied */}
+              {detail.coupon && (
+                <>
+                  <Separator />
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-sm">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Ticket className="h-4 w-4 text-orange-600" />
+                      <span className="font-semibold text-orange-800">Coupon Applied</span>
+                    </div>
+                    <div className="text-orange-700">
+                      {detail.coupon.promotionName} &mdash;{" "}
+                      {`-${detail.coupon.discountValue} บาท`}
+                    </div>
+                    <div className="text-xs text-orange-600 mt-1 font-mono">
+                      Code: {detail.coupon.code}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Status actions */}
               {detail.status === "pending" && (
                 <>
                   <Separator />
@@ -219,6 +278,63 @@ export default function OrdersPage() {
                   </div>
                 </>
               )}
+
+              <Separator />
+
+              {/* Collaboration Coupon Section */}
+              <div className="bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-200 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Gift className="h-5 w-5 text-pink-600" />
+                  <span className="font-semibold text-pink-800">
+                    Zvenzen x น้ำเต้าหู้ Collaboration
+                  </span>
+                </div>
+
+                {!collabCoupon ? (
+                  <>
+                    <p className="text-sm text-pink-700 mb-3">
+                      รับคูปองส่วนลดพิเศษจาก collaboration กับกลุ่มน้ำเต้าหู้!
+                    </p>
+                    <Button
+                      className="w-full bg-pink-600 hover:bg-pink-700 text-white"
+                      onClick={handleGetCollabCoupon}
+                      disabled={collabLoading}
+                    >
+                      <Gift className="h-4 w-4 mr-2" />
+                      {collabLoading ? "กำลังสร้างคูปอง..." : "รับคูปอง"}
+                    </Button>
+                  </>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-pink-800">
+                      {collabCoupon.coupoun_name}
+                    </div>
+                    <div className="text-sm text-pink-700">
+                      ส่วนลด: {collabCoupon.coupoun_discount} บาท
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <code className="flex-1 bg-white border border-pink-300 rounded px-3 py-2 text-center font-mono text-sm font-bold tracking-wider">
+                        {collabCoupon.coupon_code}
+                      </code>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-9 w-9 border-pink-300"
+                        onClick={() => handleCopyCoupon(collabCoupon.coupon_code)}
+                      >
+                        {copied ? (
+                          <Check className="h-4 w-4 text-emerald-600" />
+                        ) : (
+                          <Copy className="h-4 w-4 text-pink-600" />
+                        )}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-pink-600">
+                      ใช้โค้ดนี้ในการสั่งซื้อครั้งถัดไปเพื่อรับส่วนลด!
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </DialogContent>
