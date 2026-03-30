@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor @AllArgsConstructor
 @Builder
 public class PartnerFixedPromotionDto {
+    private Long id;
     private String name;
     private BigDecimal discountValue;
     private int couponsRemaining;

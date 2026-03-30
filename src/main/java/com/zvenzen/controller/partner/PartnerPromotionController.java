@@ -38,6 +38,7 @@ public class PartnerPromotionController {
             int remaining = p.getMaxCoupons() - p.getCouponsUsed();
             if ("fixed".equals(p.getDiscountType())) {
                 promotions.add(PartnerFixedPromotionDto.builder()
+                        .id(p.getId())
                         .name(p.getName())
                         .discountValue(p.getDiscountValue())
                         .couponsRemaining(remaining)
@@ -51,6 +52,7 @@ public class PartnerPromotionController {
                     optionName = fi.getOptionName();
                 }
                 promotions.add(PartnerFreeItemPromotionDto.builder()
+                        .id(p.getId())
                         .name(p.getName())
                         .productName(productName)
                         .optionName(optionName)
