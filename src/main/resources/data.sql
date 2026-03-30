@@ -1,13 +1,24 @@
--- Clean up everything
-DELETE FROM order_items;
+-- Force clean ALL data
 DELETE FROM coupon_usages;
 DELETE FROM coupons;
 DELETE FROM promotion_free_items;
+DELETE FROM order_items;
+DELETE FROM orders;
 DELETE FROM promotions;
 DELETE FROM product_options;
 DELETE FROM products;
 DELETE FROM categories;
-DELETE FROM orders;
+
+-- Reset sequences
+ALTER SEQUENCE categories_id_seq RESTART WITH 1;
+ALTER SEQUENCE products_id_seq RESTART WITH 1;
+ALTER SEQUENCE product_options_id_seq RESTART WITH 1;
+ALTER SEQUENCE promotions_id_seq RESTART WITH 1;
+ALTER SEQUENCE promotion_free_items_id_seq RESTART WITH 1;
+ALTER SEQUENCE orders_id_seq RESTART WITH 1;
+ALTER SEQUENCE order_items_id_seq RESTART WITH 1;
+ALTER SEQUENCE coupons_id_seq RESTART WITH 1;
+ALTER SEQUENCE coupon_usages_id_seq RESTART WITH 1;
 
 -- 3 Categories only
 INSERT INTO categories (id, name, sort_order, is_active) VALUES
