@@ -37,7 +37,6 @@ import type { Promotion, Product } from "@/lib/types";
 
 const typeColors: Record<string, string> = {
   fixed: "bg-blue-100 text-blue-800",
-  percent: "bg-purple-100 text-purple-800",
   free_items: "bg-emerald-100 text-emerald-800",
 };
 
@@ -188,9 +187,7 @@ export default function PromotionsPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    {p.discountType === "percent"
-                      ? `${p.discountValue}%`
-                      : p.discountType === "fixed"
+                    {p.discountType === "fixed"
                       ? money(p.discountValue)
                       : "-"}
                   </TableCell>
@@ -237,15 +234,14 @@ export default function PromotionsPage() {
               <Select value={form.discountType} onValueChange={(v) => setForm((f) => ({ ...f, discountType: v ?? "fixed" }))}>
                 <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="fixed">Fixed Amount</SelectItem>
-                  <SelectItem value="percent">Percentage</SelectItem>
-                  <SelectItem value="free_items">Free Items</SelectItem>
+                  <SelectItem value="fixed">Fixed Amount (ลดเป็นบาท)</SelectItem>
+                  <SelectItem value="free_items">Free Items (ของแจก)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             {form.discountType !== "free_items" && (
               <div>
-                <Label>Discount Value {form.discountType === "percent" ? "(%)" : "(฿)"}</Label>
+                <Label>Discount Value (฿)</Label>
                 <Input className="mt-1" type="number" step="0.01" value={form.discountValue} onChange={(e) => setForm((f) => ({ ...f, discountValue: e.target.value }))} />
               </div>
             )}

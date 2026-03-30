@@ -93,10 +93,8 @@ public class ShopOrderService {
 
             switch (promotion.getDiscountType()) {
                 case "fixed" -> discountAmount = promotion.getDiscountValue();
-                case "percent" -> discountAmount = totalAmount
-                        .multiply(promotion.getDiscountValue())
-                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
                 case "free_items" -> discountAmount = BigDecimal.ZERO;
+                default -> discountAmount = BigDecimal.ZERO;
             }
 
             coupon.setStatus("used");

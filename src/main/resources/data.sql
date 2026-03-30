@@ -140,12 +140,10 @@ INSERT INTO product_options (id, product_id, option_name, extra_price, is_defaul
 (57, 31, 'พร้อมไอติม 2 สกู๊ป', 25.00, false)
 ON CONFLICT (id) DO NOTHING;
 
--- Promotions (5)
+-- Promotions (3) — fixed and free_items only
 INSERT INTO promotions (id, name, discount_type, discount_value, min_order_amount, max_coupons, coupons_used, valid_from, valid_until, is_active) VALUES
 (1, 'ลด 20 บาท ทุกบิล', 'fixed', 20.00, NULL, 200, 0, '2024-03-01 00:00:00', '2026-12-31 23:59:59', true),
-(2, 'ลด 15%', 'percent', 15.00, 100.00, 150, 0, '2024-03-01 00:00:00', '2026-12-31 23:59:59', true),
 (3, 'ครบ 399 รับไอติม+ท็อปปิ้งฟรี', 'free_items', NULL, 399.00, 100, 0, '2024-03-01 00:00:00', '2026-12-31 23:59:59', true),
-(4, 'ซื้อครบ 200 ลด 10%', 'percent', 10.00, 200.00, 300, 0, '2024-01-01 00:00:00', '2026-12-31 23:59:59', true),
 (5, 'แจกวาฟเฟิลฟรี', 'free_items', NULL, 300.00, 50, 0, '2024-01-01 00:00:00', '2026-12-31 23:59:59', true)
 ON CONFLICT (id) DO NOTHING;
 
@@ -194,3 +192,8 @@ DELETE FROM order_items WHERE product_id IN (SELECT id FROM products WHERE image
 DELETE FROM promotion_free_items WHERE product_id IN (SELECT id FROM products WHERE image_url IS NULL OR image_url = '');
 DELETE FROM product_options WHERE product_id IN (SELECT id FROM products WHERE image_url IS NULL OR image_url = '');
 DELETE FROM products WHERE image_url IS NULL OR image_url = '';
+
+-- Remove percent promotions (child records first to respect FK constraints)
+DELETE FROM coupons WHERE promotion_id IN (SELECT id FROM promotions WHERE discount_type = 'percent');
+DELETE FROM promotion_free_items WHERE promotion_id IN (SELECT id FROM promotions WHERE discount_type = 'percent');
+DELETE FROM promotions WHERE discount_type = 'percent';
