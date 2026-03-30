@@ -13,7 +13,9 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOriginPatterns(
                         "http://localhost:*",
                         "https://zvenzen.onrender.com",
-                        "https://*.vercel.app"
+                        "https://zvenzen-production.up.railway.app",
+                        "https://*.vercel.app",
+                        "https://*.railway.app"
                 )
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
