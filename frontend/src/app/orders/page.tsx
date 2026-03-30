@@ -48,7 +48,6 @@ export default function OrdersPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   // Collab coupon state
-  const [collabLoading, setCollabLoading] = useState(false);
   const [collabCoupon, setCollabCoupon] = useState<CollabCoupon | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -77,24 +76,25 @@ export default function OrdersPage() {
     try {
       await updateOrderStatus(id, status);
       toast.success(`Order ${status}`);
-      setDialogOpen(false);
+
+      const updatedOrder = await getOrder(id);
+      setDetail(updatedOrder);
+
+      if (status === "completed") {
+        try {
+          const coupon = await createCollabCoupon();
+          setCollabCoupon(coupon);
+        } catch {
+          // silently fail — coupon is bonus
+        }
+      } else {
+        setDialogOpen(false);
+      }
+
       load();
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed";
       toast.error(msg);
-    }
-  };
-
-  const handleGetCollabCoupon = async () => {
-    setCollabLoading(true);
-    try {
-      const coupon = await createCollabCoupon();
-      setCollabCoupon(coupon);
-      toast.success("ได้รับคูปองแล้ว!");
-    } catch {
-      toast.error("ไม่สามารถรับคูปองได้ กรุณาลองใหม่");
-    } finally {
-      setCollabLoading(false);
     }
   };
 
@@ -279,64 +279,47 @@ export default function OrdersPage() {
                 </>
               )}
 
-              {detail.status === "completed" && (<>
-              <Separator />
-
-              {/* Collaboration Coupon Section — only for completed orders */}
-              <div className="bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-200 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Gift className="h-5 w-5 text-pink-600" />
-                  <span className="font-semibold text-pink-800">
-                    Zvenzen x น้ำเต้าหู้ Collaboration
-                  </span>
-                </div>
-
-                {!collabCoupon ? (
-                  <>
-                    <p className="text-sm text-pink-700 mb-3">
-                      รับคูปองส่วนลดพิเศษจาก collaboration กับกลุ่มน้ำเต้าหู้!
-                    </p>
-                    <Button
-                      className="w-full bg-pink-600 hover:bg-pink-700 text-white"
-                      onClick={handleGetCollabCoupon}
-                      disabled={collabLoading}
-                    >
-                      <Gift className="h-4 w-4 mr-2" />
-                      {collabLoading ? "กำลังสร้างคูปอง..." : "รับคูปอง"}
-                    </Button>
-                  </>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="text-sm font-medium text-pink-800">
-                      {collabCoupon.coupoun_name}
+              {detail.status === "completed" && collabCoupon && (
+                <>
+                  <Separator />
+                  <div className="bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-200 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Gift className="h-5 w-5 text-pink-600" />
+                      <span className="font-semibold text-pink-800">
+                        Special Gift for You!
+                      </span>
                     </div>
-                    <div className="text-sm text-pink-700">
-                      ส่วนลด: {collabCoupon.coupoun_discount} บาท
+                    <div className="space-y-2">
+                      <div className="text-sm font-medium text-pink-800">
+                        {collabCoupon.coupoun_name}
+                      </div>
+                      <div className="text-sm text-pink-700">
+                        ส่วนลด: {collabCoupon.coupoun_discount} บาท
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <code className="flex-1 bg-white border border-pink-300 rounded px-3 py-2 text-center font-mono text-sm font-bold tracking-wider">
+                          {collabCoupon.coupon_code}
+                        </code>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="h-9 w-9 border-pink-300"
+                          onClick={() => handleCopyCoupon(collabCoupon.coupon_code)}
+                        >
+                          {copied ? (
+                            <Check className="h-4 w-4 text-emerald-600" />
+                          ) : (
+                            <Copy className="h-4 w-4 text-pink-600" />
+                          )}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-pink-600">
+                        คูปองจาก collaboration กับร้านพาร์ทเนอร์!
+                      </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <code className="flex-1 bg-white border border-pink-300 rounded px-3 py-2 text-center font-mono text-sm font-bold tracking-wider">
-                        {collabCoupon.coupon_code}
-                      </code>
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="h-9 w-9 border-pink-300"
-                        onClick={() => handleCopyCoupon(collabCoupon.coupon_code)}
-                      >
-                        {copied ? (
-                          <Check className="h-4 w-4 text-emerald-600" />
-                        ) : (
-                          <Copy className="h-4 w-4 text-pink-600" />
-                        )}
-                      </Button>
-                    </div>
-                    <p className="text-xs text-pink-600">
-                      ใช้โค้ดนี้ในการสั่งซื้อครั้งถัดไปเพื่อรับส่วนลด!
-                    </p>
                   </div>
-                )}
-              </div>
-              </>)}
+                </>
+              )}
             </div>
           )}
         </DialogContent>
