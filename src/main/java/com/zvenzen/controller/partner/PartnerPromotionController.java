@@ -66,11 +66,24 @@ public class PartnerPromotionController {
     public ResponseEntity<ApiResponse<PartnerCouponResponseDto>> issueCoupon(
             @Valid @RequestBody IssueCouponRequest request) {
         CouponDto coupon = couponService.issueCoupon(request.getPromotionId());
-        PartnerCouponResponseDto response = PartnerCouponResponseDto.builder()
-                .code(coupon.getCode())
-                .promotionName(coupon.getPromotionName())
-                .build();
+        PromotionDto promo = promotionService.getPromotionById(request.getPromotionId());
+
+        PartnerCouponResponseDto.PartnerCouponResponseDtoBuilder builder =
+                PartnerCouponResponseDto.builder()
+                        .code(coupon.getCode())
+                        .promotionName(coupon.getPromotionName())
+                        .minOrderAmount(promo.getMinOrderAmount());
+
+        if ("fixed".equals(promo.getDiscountType())) {
+            builder.discountValue(promo.getDiscountValue());
+        } else if ("free_items".equals(promo.getDiscountType())
+                && promo.getFreeItems() != null && !promo.getFreeItems().isEmpty()) {
+            FreeItemDto fi = promo.getFreeItems().get(0);
+            builder.productName(fi.getProductName());
+            builder.optionName(fi.getOptionName());
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok(response));
+                .body(ApiResponse.ok(builder.build()));
     }
 }
