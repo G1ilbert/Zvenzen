@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls /c/Users/Gi1lbert/Project/Zvenzen/frontend/.env*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

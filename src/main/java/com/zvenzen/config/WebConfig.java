@@ -14,8 +14,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "http://localhost:*",
                         "https://zvenzen.onrender.com",
                         "https://zvenzen-production.up.railway.app",
-                        "https://*.vercel.app",
-                        "https://*.railway.app"
+                        "https://zvenzen1.vercel.app",
+                        "https://zvenzen-production.railway.app"
                 )
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
