@@ -4,8 +4,6 @@ import type {
   Product,
   Order,
   Promotion,
-  DashboardSummary,
-  TopProduct,
   CollabCoupon,
 } from "./types";
 
@@ -80,10 +78,6 @@ export const createPromotion = (data: unknown) => post<Promotion>("/promotions",
 export const updatePromotion = (id: number, data: unknown) =>
   put<Promotion>(`/promotions/${id}`, data);
 export const togglePromotion = (id: number) => patch<Promotion>(`/promotions/${id}/toggle`);
-
-// Dashboard
-export const getDashboardSummary = () => get<DashboardSummary>("/dashboard/summary");
-export const getTopProducts = () => get<TopProduct[]>("/dashboard/top-products");
 
 // Collaboration Coupon (soasoymilk x zvenzen)
 const COLLAB_API = "https://soasoymilkapi-production.up.railway.app/colab/ice-cream";

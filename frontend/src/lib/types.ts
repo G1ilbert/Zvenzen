@@ -80,22 +80,6 @@ export interface Promotion {
   freeItems?: FreeItem[];
 }
 
-export interface DashboardSummary {
-  date: string;
-  totalOrders: number;
-  completedOrders: number;
-  cancelledOrders: number;
-  totalRevenue: number;
-  totalDiscount: number;
-  netRevenue: number;
-}
-
-export interface TopProduct {
-  productId: number;
-  productName: string;
-  totalQuantity: number;
-}
-
 export interface CartItem {
   productId: number;
   productName: string;

@@ -22,10 +22,3 @@ export function formatDateTime(dateStr: string): string {
   }
 }
 
-export function formatTime(dateStr: string): string {
-  try {
-    return format(parseISO(dateStr), "HH:mm");
-  } catch {
-    return dateStr;
-  }
-}
